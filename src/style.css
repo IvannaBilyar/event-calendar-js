@@ -98,7 +98,6 @@
     font-size: 25px;
     font-weight: 700;
     display: inline-block;
-    /* Додано для вирівнювання з title та кнопками */
     margin-right: 10px;
 }
 
@@ -113,30 +112,6 @@
     color: rgba(72, 13, 60, 0.8);
     font-size: 15px;
     font-weight: 400;
-}
-
-.fc-basic-view th.fc-week-number,
-.fc-basic-view th.fc-day-number {
-    padding: 0 2px;
-
-}
-
-.fc-ltr .fc-basic-view .fc-day-top .fc-day-number {
-    float: right;
-}
-
-.fc-rtl .fc-basic-view .fc-day-top .fc-day-number {
-    float: left;
-}
-
-.fc-ltr .fc-basic-view .fc-day-top .fc-week-number {
-    float: left;
-    border-radius: 0 0 3px 0;
-}
-
-.fc-rtl .fc-basic-view .fc-day-top .fc-week-number {
-    float: right;
-    border-radius: 0 0 0 3px;
 }
 
 .fc-basic-view .fc-day-top .fc-week-number {
@@ -157,10 +132,8 @@
     min-width: 1.25em;
 }
 
-/* TimeGrid Structure*/
 .fc-time-grid-container,
 .fc-time-grid {
-
     position: relative;
     z-index: 1;
 }
@@ -185,19 +158,6 @@
 
     position: relative;
     z-index: 2;
-}
-
-.fc-time-grid .fc-content-col {
-    position: relative;
-
-}
-
-.fc-time-grid .fc-content-skeleton {
-    position: absolute;
-    z-index: 3;
-    top: 0;
-    left: 0;
-    right: 0;
 }
 
 .fc th.fc-day-header {
@@ -251,7 +211,10 @@ h2 {
     background: #470041;
     color: #ffffff;
 }
-.btn-primary:not(:disabled):not(.disabled).active, .btn-primary:not(:disabled):not(.disabled):active, .show>.btn-primary.dropdown-toggle {
+
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show>.btn-primary.dropdown-toggle {
     color: #fff;
     background-color: #84244d;
 }

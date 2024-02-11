@@ -3,10 +3,9 @@ import './style.css';
 
 // document.getElementById("app").innerText = "Text";
 
-
 jQuery(document).ready(function () {
   // змінна для зберігання даних події, яку будемо редагувати
-  var eventToEdit;
+  let eventToEdit;
 
   // Ініціалізація datetimepicker для вибору дати та часу
   jQuery('.datetimepicker').datepicker({
@@ -24,7 +23,7 @@ jQuery(document).ready(function () {
     businessHours: false,
     defaultView: 'month',
     editable: true,
-    selectable: true, // Додаємо можливість вибирати області на календарі
+    selectable: true,
     header: {
       left: 'prev,next today',
       center: 'title',
@@ -32,7 +31,7 @@ jQuery(document).ready(function () {
     },
     dayClick: function (date, jsEvent, view) {
       // Отримання дати, на яку клікнули
-      var clickedDate = date.format('YYYY-MM-DD');
+      const clickedDate = date.format('YYYY-MM-DD');
       // Відкриття модального вікна для додавання події
       jQuery('input[name="edate"]').val(clickedDate);
       jQuery('#modal-view-event-add').modal('show');
@@ -78,16 +77,16 @@ jQuery(document).ready(function () {
     event.preventDefault();
 
     // Генерація унікального ідентифікатора для нової події
-    var eventId = generateEventId();
+    const eventId = generateEventId();
 
     // Отримання значень з форми
-    var eventName = jQuery('input[name="ename"]').val().trim();
-    var eventDate = jQuery('input[name="edate"]').val().trim();
-    var eventStartTime = jQuery('input[name="estarttime"]').val().trim();
-    var eventEndTime = jQuery('input[name="eendtime"]').val().trim();
+    const eventName = jQuery('input[name="ename"]').val().trim();
+    const eventDate = jQuery('input[name="edate"]').val().trim();
+    const eventStartTime = jQuery('input[name="estarttime"]').val().trim();
+    const eventEndTime = jQuery('input[name="eendtime"]').val().trim();
 
     // Перевірка чи вказаний час
-    var startDateTime, endDateTime;
+    let startDateTime, endDateTime;
     if (eventStartTime && eventEndTime) {
       // Якщо вказаний час, використовуємо його
       startDateTime = eventDate + 'T' + eventStartTime;
@@ -99,7 +98,7 @@ jQuery(document).ready(function () {
     }
 
     // Додаємо подію до календаря разом із згенерованим ідентифікатором та часом
-    var eventData = {
+    const eventData = {
       id: eventId,
       title: eventName,
       start: startDateTime,
@@ -120,7 +119,7 @@ jQuery(document).ready(function () {
 
   // Функція для збереження подій у localStorage
   function saveEvent(eventData) {
-    var events = JSON.parse(localStorage.getItem('events')) || [];
+    const events = JSON.parse(localStorage.getItem('events')) || [];
     events.push(eventData);
     localStorage.setItem('events', JSON.stringify(events));
   }
@@ -145,7 +144,7 @@ jQuery(document).ready(function () {
 
 
   // Завантаження подій при завантаженні сторінки
-  var savedEvents = loadEvents();
+  const savedEvents = loadEvents();
   savedEvents.forEach(function (eventData) {
     jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
   });
@@ -155,7 +154,7 @@ jQuery(document).ready(function () {
     // Зупиняємо стандартну поведінку форми
     event.preventDefault();
     // Отримання нових значень з форми редагування
-    var editedEventData = {
+    const editedEventData = {
       title: jQuery('input[name="edit-ename"]').val(),
       start: jQuery('input[name="edit-edate"]').val(),
       startTime: jQuery('input[name="edit-estarttime"]').val(),
@@ -164,8 +163,8 @@ jQuery(document).ready(function () {
     };
 
     // Обчислення кінцевої дати та часу
-    var startDateTime = editedEventData.start + 'T' + editedEventData.startTime;
-    var endDateTime = editedEventData.start + 'T' + editedEventData.endTime;
+    const startDateTime = editedEventData.start + 'T' + editedEventData.startTime;
+    const endDateTime = editedEventData.start + 'T' + editedEventData.endTime;
 
     // Оновлення даних події в календарі
     eventToEdit.title = editedEventData.title;
@@ -187,9 +186,9 @@ jQuery(document).ready(function () {
 
   // Функція для оновлення події в локальному сховищі
   function updateEventInLocalStorage(updatedEvent) {
-    var events = JSON.parse(localStorage.getItem('events')) || [];
-    var eventId = updatedEvent.id;
-    var index = events.findIndex(function (event) {
+    const events = JSON.parse(localStorage.getItem('events')) || [];
+    const eventId = updatedEvent.id;
+    const index = events.findIndex(function (event) {
       return event.id === eventId;
     });
     if (index !== -1) {
@@ -200,6 +199,7 @@ jQuery(document).ready(function () {
   }
 
 });
+
 
 
 
