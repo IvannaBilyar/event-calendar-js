@@ -1,252 +1,204 @@
 import './style.css';
-// console.log('Hello from index.js');
-
-// document.getElementById("app").innerText = "Text";
 
 jQuery(document).ready(function () {
-  // змінна для зберігання даних події, яку будемо редагувати
   let eventToEdit;
 
-  // Ініціалізація datetimepicker для вибору дати та часу
+ // Initializing the datetimepicker to select the date and time
   jQuery('.datetimepicker').datepicker({
-      timepicker: true,
-      language: 'en',
-      range: true,
-      multipleDates: true,
-      multipleDatesSeparator: " - "
+    timepicker: true,
+    language: 'en',
+    range: true,
+    multipleDates: true,
+    multipleDatesSeparator: " - "
   });
 
-  // Ініціалізація календаря
+  // Initializing the calendar
   jQuery('#calendar').fullCalendar({
-      // налаштування календаря...
-      themeSystem: 'bootstrap4',
-      businessHours: false,
-      defaultView: 'month',
-      editable: true,
-      selectable: true,
-      header: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'month,agendaWeek,agendaDay'
-      },
-      dayClick: function (date, jsEvent, view) {
-          // Отримання дати, на яку клікнули
-          const clickedDate = date.format('YYYY-MM-DD');
-          // Відкриття модального вікна для додавання події
-          jQuery('input[name="edate"]').val(clickedDate);
-          jQuery('#modal-view-event-add').modal('show');
-      },
-      eventClick: function (event, jsEvent, view) {
-          // Відображення деталей події при кліку на неї
-          jQuery('.event-title').html(event.title);
-
-          let eventDetails = ''; // Початок рядка деталей події
-
-          // Перевірка наявності дати у події
-          if (event.start) {
-              eventDetails += '<p><strong>Date:</strong> ' + event.start.format('YYYY-MM-DD') + '</p>';
-
-              // Перевірка наявності часу у події
-              if (event.start.hasTime()) {
-                  // Додавання часу, якщо він є
-                  eventDetails += '<p><strong>Start Time:</strong> ' + event.start.format('HH:mm') + '</p>' +
-                      '<p><strong>End Time:</strong> ' + event.end.format('HH:mm') + '</p>';
-              }
-          }
-          // Додавання опису події
-          eventDetails += '<p><strong>Description:</strong> ' + event.description + '</p>';
-
-          // Відображення деталей події
-          jQuery('.event-body').html(eventDetails);
-
-          // Зберігання даних події, яку будемо редагувати
-          eventToEdit = event;
-
-          jQuery('#modal-view-event').modal('show');
-      },
-      select: function (start, end, jsEvent, view) {
-          // Блокуємо можливість вибору областей на календарі, якщо обрана подія має час
-          if (eventToEdit && eventToEdit.start.hasTime()) {
-              jQuery('#calendar').fullCalendar('unselect');
-          }
+    // Calendar settings...
+    themeSystem: 'bootstrap4',
+    businessHours: false,
+    defaultView: 'month',
+    editable: true,
+    selectable: true,
+    header: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'month,agendaWeek,agendaDay'
+    },
+    dayClick: function (date, jsEvent, view) {
+      const clickedDate = date.format('YYYY-MM-DD');
+      jQuery('input[name="edate"]').val(clickedDate);
+      jQuery('#modal-view-event-add').modal('show');
+    },
+    eventClick: function (event, jsEvent, view) {
+      // console.log(event);
+      jQuery('.event-title').html(event.title);
+      let eventDetails = ''; 
+      
+      if (event.start) {
+        eventDetails += '<p><strong>Date:</strong> ' + event.start.format('YYYY-MM-DD') + '</p>';
+        if (event.start.hasTime()) {
+          eventDetails += '<p><strong>Start Time:</strong> ' + event.start.format('HH:mm') + '</p>' +
+            '<p><strong>End Time:</strong> ' + event.end.format('HH:mm') + '</p>';
+        }
       }
+      eventDetails += '<p><strong>Description:</strong> ' + event.description + '</p>';
+      jQuery('.event-body').html(eventDetails);
+      eventToEdit = event;
+      jQuery('#modal-view-event').modal('show');
+    },
+    select: function (start, end, jsEvent, view) {
+      // Block the ability to select areas on the calendar if the selected event has a time
+      if (eventToEdit && eventToEdit.start.hasTime()) {
+        jQuery('#calendar').fullCalendar('unselect');
+      }
+    }
   });
 
-  // Функція для генерації унікального ідентифікатора
+  // Function for generating a unique identifier
   function generateEventId() {
-      return Date.now().toString();
+    return Date.now().toString();
   }
 
-  // Подія, яка відбувається при відправці форми додавання події
+ // The event that occurs when the event add form is submitted
   jQuery("#add-event").submit(function (event) {
-      // Зупиняємо стандартну поведінку форми
-      event.preventDefault();
+    event.preventDefault();
+    const eventId = generateEventId();
+    const eventName = jQuery('input[name="ename"]').val().trim();
+    const eventDate = jQuery('input[name="edate"]').val().trim();
+    const eventStartTime = jQuery('input[name="estarttime"]').val().trim();
+    const eventEndTime = jQuery('input[name="eendtime"]').val().trim();
+    let startDateTime, endDateTime;
+    if (eventStartTime && eventEndTime) {
+      startDateTime = eventDate + 'T' + eventStartTime;
+      endDateTime = eventDate + 'T' + eventEndTime;
+    } else {
+      startDateTime = eventDate;
+      endDateTime = eventDate;
+    }
 
-      // Генерація унікального ідентифікатора для нової події
-      const eventId = generateEventId();
+    // Add the event to the calendar with the generated ID and time
+    const eventData = {
+      id: eventId,
+      title: eventName,
+      start: startDateTime,
+      end: endDateTime,
+      description: jQuery('textarea[name="edesc"]').val()
+    };
+    jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
 
-      // Отримання значень з форми
-      const eventName = jQuery('input[name="ename"]').val().trim();
-      const eventDate = jQuery('input[name="edate"]').val().trim();
-      const eventStartTime = jQuery('input[name="estarttime"]').val().trim();
-      const eventEndTime = jQuery('input[name="eendtime"]').val().trim();
+    jQuery('#add-event')[0].reset();
 
-      // Перевірка чи вказаний час
-      let startDateTime, endDateTime;
-      if (eventStartTime && eventEndTime) {
-          // Якщо вказаний час, використовуємо його
-          startDateTime = eventDate + 'T' + eventStartTime;
-          endDateTime = eventDate + 'T' + eventEndTime;
-      } else {
-          // Якщо час не вказаний, передаємо лише дату без часу
-          startDateTime = eventDate;
-          endDateTime = eventDate;
-      }
+    jQuery('#modal-view-event-add').modal('hide');
 
-      // Додаємо подію до календаря разом із згенерованим ідентифікатором та часом
-      const eventData = {
-          id: eventId,
-          title: eventName,
-          start: startDateTime,
-          end: endDateTime,
-          description: jQuery('textarea[name="edesc"]').val()
-      };
-      jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
-
-      // Очищення полів форми для додавання наступної події
-      jQuery('#add-event')[0].reset();
-
-      // Закриття модального вікна
-      jQuery('#modal-view-event-add').modal('hide');
-
-      // Збереження нової події у локальне сховище
-      saveEvent(eventData);
+    saveEvent(eventData);
   });
 
-  // Функція для збереження подій у localStorage
+  // Function to save events to localStorage
   function saveEvent(eventData) {
-      const events = JSON.parse(localStorage.getItem('events')) || [];
-      events.push(eventData);
-      localStorage.setItem('events', JSON.stringify(events));
+    const events = JSON.parse(localStorage.getItem('events')) || [];
+    events.push(eventData);
+    localStorage.setItem('events', JSON.stringify(events));
   }
 
-  // Завантаження подій при завантаженні сторінки
+ // Loading events when the page loads
   const savedEvents = loadEvents();
   savedEvents.forEach(function (eventData) {
-      // Перевіряємо, чи подія має час
-      if (eventData.start.includes('T')) {
-          // Якщо має час, рендеримо як з часом
-          jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
-      } else {
-          // Якщо не має часу, рендеримо як цілодобову подію (без часу)
-          eventData.allDay = true;
-          jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
-      }
+    if (eventData.start.includes('T')) {
+      jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
+    } else {
+      eventData.allDay = true;
+      jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
+    }
   });
 
-  // Функція для завантаження подій з localStorage
+ // Function for loading events from localStorage
   function loadEvents() {
-      return JSON.parse(localStorage.getItem('events')) || [];
+    return JSON.parse(localStorage.getItem('events')) || [];
   }
 
-  // Подія, яка відбувається при кліку на кнопку "Редагувати"
+  // The event that occurs when you click on the "Edit" button
   jQuery('.edit-event').click(function () {
-      // Встановлення значень полів форми редагування події на основі даних події, яку будемо редагувати
-      jQuery('input[name="edit-ename"]').val(eventToEdit.title);
-      jQuery('input[name="edit-edate"]').val(eventToEdit.start ? eventToEdit.start.format('YYYY-MM-DD') : ''); // Якщо дата існує, встановлюємо її значення
-      jQuery('input[name="edit-estarttime"]').val(eventToEdit.start && eventToEdit.start.hasTime() ? eventToEdit.start.format('HH:mm') : ''); // Якщо час існує, встановлюємо його значення
-      jQuery('input[name="edit-eendtime"]').val(eventToEdit.end && eventToEdit.start.hasTime() ? eventToEdit.end.format('HH:mm') : ''); // Якщо час існує, встановлюємо його значення
-      jQuery('textarea[name="edit-edesc"]').val(eventToEdit.description);
+    jQuery('input[name="edit-ename"]').val(eventToEdit.title);
+    jQuery('input[name="edit-edate"]').val(eventToEdit.start ? eventToEdit.start.format('YYYY-MM-DD') : ''); // Якщо дата існує, встановлюємо її значення
+    jQuery('input[name="edit-estarttime"]').val(eventToEdit.start && eventToEdit.start.hasTime() ? eventToEdit.start.format('HH:mm') : ''); // Якщо час існує, встановлюємо його значення
+    jQuery('input[name="edit-eendtime"]').val(eventToEdit.end && eventToEdit.start.hasTime() ? eventToEdit.end.format('HH:mm') : ''); // Якщо час існує, встановлюємо його значення
+    jQuery('textarea[name="edit-edesc"]').val(eventToEdit.description);
 
-      // Відкриття модального вікна для редагування події
-      jQuery('#modal-edit-event').modal('show');
+    jQuery('#modal-edit-event').modal('show');
   });
 
-  // Подія, яка відбувається при відправці форми редагування події
+  // The event that occurs when the event edit form is submitted
   jQuery("#edit-event").submit(function (event) {
-      // Зупиняємо стандартну поведінку форми
-      event.preventDefault();
+    event.preventDefault();
+    const editedEventData = {
+      title: jQuery('input[name="edit-ename"]').val(),
+      start: jQuery('input[name="edit-edate"]').val(),
+      startTime: jQuery('input[name="edit-estarttime"]').val(),
+      endTime: jQuery('input[name="edit-eendtime"]').val(),
+      description: jQuery('textarea[name="edit-edesc"]').val()
+    };
 
-      // Отримання нових значень з форми редагування
-      const editedEventData = {
-          title: jQuery('input[name="edit-ename"]').val(),
-          start: jQuery('input[name="edit-edate"]').val(),
-          startTime: jQuery('input[name="edit-estarttime"]').val(),
-          endTime: jQuery('input[name="edit-eendtime"]').val(),
-          description: jQuery('textarea[name="edit-edesc"]').val()
-      };
+    let startDateTime, endDateTime;
+    if (editedEventData.startTime && editedEventData.endTime) {
+      startDateTime = editedEventData.start + 'T' + editedEventData.startTime;
+      endDateTime = editedEventData.start + 'T' + editedEventData.endTime;
+    } else {
+      startDateTime = editedEventData.start;
+      endDateTime = editedEventData.start;
+    }
 
-      // Обчислення кінцевої дати та часу
-      let startDateTime, endDateTime;
-      if (editedEventData.startTime && editedEventData.endTime) {
-          startDateTime = editedEventData.start + 'T' + editedEventData.startTime;
-          endDateTime = editedEventData.start + 'T' + editedEventData.endTime;
-      } else {
-          startDateTime = editedEventData.start;
-          endDateTime = editedEventData.start;
-      }
+    eventToEdit.title = editedEventData.title;
+    eventToEdit.start = startDateTime;
+    eventToEdit.end = endDateTime;
+    eventToEdit.description = editedEventData.description;
+    jQuery('#calendar').fullCalendar('updateEvent', eventToEdit);
 
-      // Оновлення даних події в календарі
-      eventToEdit.title = editedEventData.title;
-      eventToEdit.start = startDateTime;
-      eventToEdit.end = endDateTime;
-      eventToEdit.description = editedEventData.description;
-      jQuery('#calendar').fullCalendar('updateEvent', eventToEdit);
+    jQuery('#modal-edit-event').modal('hide');
 
-      // Закриття модального вікна для редагування події
-      jQuery('#modal-edit-event').modal('hide');
-
-      // Оновлення даних події в локальному сховищі
-      updateEventInLocalStorage(eventToEdit);
+    updateEventInLocalStorage(eventToEdit);
   });
 
-  // Функція для оновлення події в локальному сховищі
+  // Function for updating an event in localStorage
   function updateEventInLocalStorage(updatedEvent) {
-      const events = JSON.parse(localStorage.getItem('events')) || [];
-      const eventId = updatedEvent.id;
-      const index = events.findIndex(function (event) {
-          return event.id === eventId;
-      });
-      if (index !== -1) {
-          // Зберігаємо оновлену подію зі старим id
-          events[index] = {
-              id: eventId, // Використовуємо старий id
-              title: updatedEvent.title,
-              start: updatedEvent.start,
-              end: updatedEvent.end,
-              description: updatedEvent.description
-          };
-          localStorage.setItem('events', JSON.stringify(events));
-      }
+    const events = JSON.parse(localStorage.getItem('events')) || [];
+    const eventId = updatedEvent.id;
+    const index = events.findIndex(function (event) {
+      return event.id === eventId;
+    });
+    if (index !== -1) {
+      events[index] = {
+        id: eventId,
+        title: updatedEvent.title,
+        start: updatedEvent.start,
+        end: updatedEvent.end,
+        description: updatedEvent.description
+      };
+      localStorage.setItem('events', JSON.stringify(events));
+    }
   }
 
-  // Подія, яка відбувається при натисканні на кнопку "Видалити"
+// The event that occurs when you click the "Delete" button
   jQuery('.delete-event').click(function () {
-      // Переконайтесь, що є обрана подія для видалення
-      if (eventToEdit) {
-          // Підтвердження видалення за допомогою стандартного підтвердження браузера
-          if (confirm('Are you sure?')) {
-              // Видаліть подію з календаря
-              jQuery('#calendar').fullCalendar('removeEvents', eventToEdit.id);
-              // Видаліть подію з локального сховища
-              deleteEventFromLocalStorage(eventToEdit.id);
-              // Закрийте модальне вікно
-              jQuery('#modal-view-event').modal('hide');
-          }
+    if (eventToEdit) {
+      if (confirm('Are you sure you want to delete this event?')) {
+        jQuery('#calendar').fullCalendar('removeEvents', eventToEdit.id);
+        deleteEventFromLocalStorage(eventToEdit.id);
+        jQuery('#modal-view-event').modal('hide');
       }
+    }
   });
 
-  // Функція для видалення події з локального сховища
+  // Function for deleting an event from localStorage
   function deleteEventFromLocalStorage(eventId) {
-      const events = JSON.parse(localStorage.getItem('events')) || [];
-      const index = events.findIndex(function (event) {
-          return event.id === eventId;
-      });
-      if (index !== -1) {
-          // Видалити подію зі списку подій
-          events.splice(index, 1);
-          localStorage.setItem('events', JSON.stringify(events));
-      }
+    const events = JSON.parse(localStorage.getItem('events')) || [];
+    const index = events.findIndex(function (event) {
+      return event.id === eventId;
+    });
+    if (index !== -1) {
+      events.splice(index, 1);
+      localStorage.setItem('events', JSON.stringify(events));
+    }
   }
 
 });
