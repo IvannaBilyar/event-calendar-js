@@ -171,14 +171,40 @@
 }
 
 
+
 body {
+    position: relative;
     font-family: 'Nunito', sans-serif;
     background: #f1e6f1de;
+}
+
+.search-form {
+    position: absolute;
+    top: 20px;
+    right: 48px;
+    z-index: 999;
+    border-radius: 10px;
+    background-color: #f1e6f1de;
+    border: 1px solid #470041;
+    width: 280px;
+    padding: 3px;
+}
+
+.search-input {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    color: rgb(86, 23, 72);
+}
+
+.search-input:focus {
+    outline: none;
 }
 
 .calendar {
     border: 0;
     background: transparent;
+    margin-top: 30px;
 }
 
 h2 {
@@ -238,4 +264,90 @@ h2 {
     font-family: 'Montserrat', sans-serif;
     color: #470041;
     margin-bottom: 20px;
+}
+
+.state-holiday {
+    background-color: rgba(240, 205, 230, 0.763);
+    color: white;
+    border-color: rgba(134, 45, 125, 0.715);
+}
+
+#event-list {
+    margin-top: 20px;
+}
+
+#event-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#event-list li {
+    margin-bottom: 5px;
+}
+
+@media only screen and (max-width: 699px) {
+
+    .calendar {
+        overflow: hidden;
+    }
+
+    .fc-content-skeleton {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .fc-day-grid-container {
+        flex-grow: 1;
+        height: auto !important;
+    }
+
+    .fc-day-grid {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .fc-day-top {
+        flex: 1;
+    }
+
+    .fc-day-grid-divider {
+        display: none;
+    }
+
+    .fc-day {
+        flex: 1;
+    }
+
+    .fc-scroller {
+        overflow-y: hidden !important;
+    }
+
+    .fc button {
+        padding: 6px 10px !important;
+        font-size: 12px !important;
+        margin: 0 auto;
+    }
+
+    .fc-toolbar h2 {
+        font-size: 18px;
+        text-align: center;
+        margin: 0 auto;
+    }
+}
+
+@media only screen and (max-width: 435px) {
+    .fc-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .fc-toolbar .fc-left,
+    .fc-toolbar .fc-center,
+    .fc-toolbar .fc-right {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 10px;
+    }
 }

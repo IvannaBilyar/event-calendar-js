@@ -2,8 +2,28 @@ import './style.css';
 
 jQuery(document).ready(function () {
   let eventToEdit;
+  let userEvents = [];
 
- // Initializing the datetimepicker to select the date and time
+  let stateHolidays = generateHolidays(2024, 10);
+  function generateHolidays(startYear, numberOfYears) {
+    let holidays = [];
+    for (let i = 0; i < numberOfYears; i++) {
+      let year = startYear + i;
+      holidays.push(
+        { title: 'New Year', start: year + '-01-01', end: year + '-01-01', editable: false },
+        { title: 'International Womens Day', start: year + '-03-08', end: year + '-03-08', editable: false },
+        { title: 'Labor Day', start: year + '-05-01', end: year + '-05-01', editable: false },
+        { title: 'The Constitution Day of Ukraine', start: year + '-06-28', end: year + '-06-28', editable: false },
+        { title: 'Ukrainian Statehood Day', start: year + '-07-15', end: year + '-07-15', editable: false },
+        { title: 'Independence Day', start: year + '-08-24', end: year + '-08-24', editable: false },
+        { title: 'Day of Defenders of Ukraine', start: year + '-10-01', end: year + '-10-01', editable: false },
+        { title: 'Christmas', start: year + '-12-25', end: year + '-12-25', editable: false }
+      );
+    }
+    return holidays;
+  }
+
+  // Initializing the datetimepicker to select the date and time
   jQuery('.datetimepicker').datepicker({
     timepicker: true,
     language: 'en',
@@ -27,31 +47,50 @@ jQuery(document).ready(function () {
     },
     dayClick: function (date, jsEvent, view) {
       const clickedDate = date.format('YYYY-MM-DD');
+      const isStateHoliday = isDateStateHoliday(clickedDate);
+      if (isStateHoliday) {
+        if (!confirm('This day is a state holiday. Are you sure you want to add an event?')) {
+          return;
+        }
+      }
       jQuery('input[name="edate"]').val(clickedDate);
       jQuery('#modal-view-event-add').modal('show');
     },
+
     eventClick: function (event, jsEvent, view) {
-      // console.log(event);
-      jQuery('.event-title').html(event.title);
-      let eventDetails = ''; 
-      
-      if (event.start) {
-        eventDetails += '<p><strong>Date:</strong> ' + event.start.format('YYYY-MM-DD') + '</p>';
-        if (event.start.hasTime()) {
-          eventDetails += '<p><strong>Start Time:</strong> ' + event.start.format('HH:mm') + '</p>' +
-            '<p><strong>End Time:</strong> ' + event.end.format('HH:mm') + '</p>';
+      const isStateHoliday = isDateStateHoliday(event.start.format('YYYY-MM-DD'));
+      if (!isStateHoliday) {
+        jQuery('.event-title').html(event.title);
+        let eventDetails = '';
+
+        if (event.start) {
+          eventDetails += '<p><strong>Date:</strong> ' + event.start.format('YYYY-MM-DD') + '</p>';
+          if (event.start.hasTime()) {
+            eventDetails += '<p><strong>Start Time:</strong> ' + event.start.format('HH:mm') + '</p>' +
+              '<p><strong>End Time:</strong> ' + event.end.format('HH:mm') + '</p>';
+          }
         }
+        eventDetails += '<p><strong>Description:</strong> ' + event.description + '</p>';
+        jQuery('.event-body').html(eventDetails);
+        eventToEdit = event;
+        jQuery('#modal-view-event').modal('show');
       }
-      eventDetails += '<p><strong>Description:</strong> ' + event.description + '</p>';
-      jQuery('.event-body').html(eventDetails);
-      eventToEdit = event;
-      jQuery('#modal-view-event').modal('show');
     },
     select: function (start, end, jsEvent, view) {
       // Block the ability to select areas on the calendar if the selected event has a time
       if (eventToEdit && eventToEdit.start.hasTime()) {
         jQuery('#calendar').fullCalendar('unselect');
       }
+    },
+    eventRender: function (event, element) {
+      // Disable event editing for state holidays
+      if (event.editable === false) {
+        element.addClass('state-holiday');
+      }
+    },
+    events: function (start, end, timezone, callback) {
+      let allEvents = userEvents.concat(stateHolidays);
+      callback(allEvents);
     }
   });
 
@@ -60,7 +99,7 @@ jQuery(document).ready(function () {
     return Date.now().toString();
   }
 
- // The event that occurs when the event add form is submitted
+  // The event that occurs when the event add form is submitted
   jQuery("#add-event").submit(function (event) {
     event.preventDefault();
     const eventId = generateEventId();
@@ -83,7 +122,8 @@ jQuery(document).ready(function () {
       title: eventName,
       start: startDateTime,
       end: endDateTime,
-      description: jQuery('textarea[name="edesc"]').val()
+      description: jQuery('textarea[name="edesc"]').val(),
+      editable: true // Allow editing for user events
     };
     jQuery('#calendar').fullCalendar('renderEvent', eventData, true);
 
@@ -101,7 +141,7 @@ jQuery(document).ready(function () {
     localStorage.setItem('events', JSON.stringify(events));
   }
 
- // Loading events when the page loads
+  // Loading events when the page loads
   const savedEvents = loadEvents();
   savedEvents.forEach(function (eventData) {
     if (eventData.start.includes('T')) {
@@ -112,20 +152,23 @@ jQuery(document).ready(function () {
     }
   });
 
- // Function for loading events from localStorage
+  // Function for loading events from localStorage
   function loadEvents() {
     return JSON.parse(localStorage.getItem('events')) || [];
   }
 
   // The event that occurs when you click on the "Edit" button
   jQuery('.edit-event').click(function () {
-    jQuery('input[name="edit-ename"]').val(eventToEdit.title);
-    jQuery('input[name="edit-edate"]').val(eventToEdit.start ? eventToEdit.start.format('YYYY-MM-DD') : ''); // якщо дата ≥снуЇ, встановлюЇмо њњ значенн€
-    jQuery('input[name="edit-estarttime"]').val(eventToEdit.start && eventToEdit.start.hasTime() ? eventToEdit.start.format('HH:mm') : ''); // якщо час ≥снуЇ, встановлюЇмо його значенн€
-    jQuery('input[name="edit-eendtime"]').val(eventToEdit.end && eventToEdit.start.hasTime() ? eventToEdit.end.format('HH:mm') : ''); // якщо час ≥снуЇ, встановлюЇмо його значенн€
-    jQuery('textarea[name="edit-edesc"]').val(eventToEdit.description);
+    const isStateHoliday = isDateStateHoliday(eventToEdit.start.format('YYYY-MM-DD'));
+    if (!isStateHoliday) {
+      jQuery('input[name="edit-ename"]').val(eventToEdit.title);
+      jQuery('input[name="edit-edate"]').val(eventToEdit.start ? eventToEdit.start.format('YYYY-MM-DD') : '');
+      jQuery('input[name="edit-estarttime"]').val(eventToEdit.start && eventToEdit.start.hasTime() ? eventToEdit.start.format('HH:mm') : '');
+      jQuery('input[name="edit-eendtime"]').val(eventToEdit.end && eventToEdit.start.hasTime() ? eventToEdit.end.format('HH:mm') : '');
+      jQuery('textarea[name="edit-edesc"]').val(eventToEdit.description);
 
-    jQuery('#modal-edit-event').modal('show');
+      jQuery('#modal-edit-event').modal('show');
+    }
   });
 
   // The event that occurs when the event edit form is submitted
@@ -155,6 +198,7 @@ jQuery(document).ready(function () {
     jQuery('#calendar').fullCalendar('updateEvent', eventToEdit);
 
     jQuery('#modal-edit-event').modal('hide');
+    jQuery('#modal-view-event').modal('hide');
 
     updateEventInLocalStorage(eventToEdit);
   });
@@ -178,13 +222,16 @@ jQuery(document).ready(function () {
     }
   }
 
-// The event that occurs when you click the "Delete" button
+  // The event that occurs when you click the "Delete" button
   jQuery('.delete-event').click(function () {
-    if (eventToEdit) {
-      if (confirm('Are you sure you want to delete this event?')) {
-        jQuery('#calendar').fullCalendar('removeEvents', eventToEdit.id);
-        deleteEventFromLocalStorage(eventToEdit.id);
-        jQuery('#modal-view-event').modal('hide');
+    const isStateHoliday = isDateStateHoliday(eventToEdit.start.format('YYYY-MM-DD'));
+    if (!isStateHoliday) {
+      if (eventToEdit) {
+        if (confirm('Are you sure you want to delete this event?')) {
+          jQuery('#calendar').fullCalendar('removeEvents', eventToEdit.id);
+          deleteEventFromLocalStorage(eventToEdit.id);
+          jQuery('#modal-view-event').modal('hide');
+        }
       }
     }
   });
@@ -201,7 +248,59 @@ jQuery(document).ready(function () {
     }
   }
 
+  // Function to check if a date is a state holiday
+  function isDateStateHoliday(date) {
+    for (let i = 0; i < stateHolidays.length; i++) {
+      if (stateHolidays[i].start === date) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  //Function performed when entering text in the search field
+  jQuery('#search-input').on('input', function () {
+    const searchText = jQuery(this).val().trim().toLowerCase();
+    // console.log('Search text:', searchText);
+    const matchedEvents = searchEvents(searchText);
+    // console.log('Matched events:', matchedEvents);
+    displaySearchResults(matchedEvents);
+  });
+
+  // Search function for events by name or description
+  function searchEvents(searchText) {
+    const allEvents = jQuery('#calendar').fullCalendar('clientEvents');
+    return allEvents.filter(function (event) {
+      return event.title.toLowerCase().includes(searchText.toLowerCase()) || (event.description && event.description.toLowerCase().includes(searchText.toLowerCase()));
+    });
+  }
+
+  // Function for displaying search results
+  function displaySearchResults(events) {
+    const searchResultsList = jQuery('#search-results');
+    searchResultsList.empty();
+
+    // console.log('Events found:', events);
+
+    if (jQuery('#search-input').val().trim() === '') {
+      return;
+    }
+
+    if (events.length > 0) {
+      events.forEach(function (event) {
+        const listItem = '<li>' +
+          '<strong>' + event.title + '</strong><br>' +
+          'Date: ' + event.start.format('YYYY-MM-DD') + '<br>' +
+          'Time: ' + (event.start.hasTime() ? event.start.format('HH:mm') + ' - ' + event.end.format('HH:mm') : 'All day') +
+          '</li>';
+        searchResultsList.append(listItem);
+      });
+    } else {
+      searchResultsList.append('<li>No events found</li>');
+    }
+  }
 });
+
 
 
 

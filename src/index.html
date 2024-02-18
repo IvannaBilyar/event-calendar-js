@@ -23,13 +23,18 @@
 </head>
 
 <body>
-  <div class="p-5">
+  <div id="search-form" class="search-form">
+    <input type="text" id="search-input" class="search-input" placeholder="Search events...">
+    <ul id="search-results"></ul>
+  </div>
+  <div class="p-5" style="padding-top: 60px;">
     <div class="calendar">
       <div class="calendar-items">
         <div id="calendar"></div>
       </div>
     </div>
   </div>
+
 
   <div id="modal-view-event" class="modal modal-top fade calendar-modal">
     <div class="modal-dialog modal-dialog-centered">
