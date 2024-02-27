@@ -170,18 +170,44 @@
     background: rgba(125, 86, 104, 0.048);
 }
 
-
-
 body {
     position: relative;
     font-family: 'Nunito', sans-serif;
     background: #f1e6f1de;
 }
 
-.search-form {
+#login-btn, 
+#logout-btn {
     position: absolute;
     top: 20px;
     right: 48px;
+    z-index: 999;
+    border-radius: 20px;
+    background-color: #c594c588;
+    border: 1px solid #470041;
+    padding: 3px;
+    color: #470041;
+}
+#login-btn:hover {
+    background-color: #470041;
+    color: #ffffff;
+}
+#login-btn i,
+#logout-btn i {
+    margin-right: 5px; 
+}
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 9999;
+}
+
+
+.search-form {
+    position: absolute;
+    top: 20px;
+    left: 48px;
     z-index: 999;
     border-radius: 10px;
     background-color: #f1e6f1de;
@@ -204,7 +230,7 @@ body {
 .calendar {
     border: 0;
     background: transparent;
-    margin-top: 30px;
+    margin-top: 60px;
 }
 
 h2 {
@@ -285,10 +311,12 @@ h2 {
     margin-bottom: 5px;
 }
 
-@media only screen and (max-width: 699px) {
 
+
+@media only screen and (max-width: 699px) {
+    
     .calendar {
-        overflow: hidden;
+        overflow: hidden; 
     }
 
     .fc-content-skeleton {
@@ -297,14 +325,14 @@ h2 {
     }
 
     .fc-day-grid-container {
-        flex-grow: 1;
+        flex-grow: 1; 
         height: auto !important;
     }
 
     .fc-day-grid {
         display: flex;
         flex-direction: column;
-        flex-grow: 1;
+        flex-grow: 1; 
     }
 
     .fc-day-top {
@@ -316,23 +344,28 @@ h2 {
     }
 
     .fc-day {
-        flex: 1;
+        flex: 1; 
     }
 
     .fc-scroller {
-        overflow-y: hidden !important;
+        overflow-y: hidden !important; 
     }
 
     .fc button {
         padding: 6px 10px !important;
         font-size: 12px !important;
-        margin: 0 auto;
+        margin: 0 auto; 
     }
 
     .fc-toolbar h2 {
         font-size: 18px;
-        text-align: center;
+        text-align: center; 
         margin: 0 auto;
+        margin-top: 10px;
+    }
+    .search-form {
+        width: 35%; /* «роблено форму пошуку на повну ширину */
+        font-size: 12px;
     }
 }
 
@@ -340,14 +373,14 @@ h2 {
     .fc-toolbar {
         display: flex;
         flex-wrap: wrap;
-        justify-content: center;
+        justify-content: center; 
     }
 
     .fc-toolbar .fc-left,
     .fc-toolbar .fc-center,
     .fc-toolbar .fc-right {
         width: 100%;
-        text-align: center;
-        margin-bottom: 10px;
+        text-align: center; 
+        margin-bottom: 10px; 
     }
 }
