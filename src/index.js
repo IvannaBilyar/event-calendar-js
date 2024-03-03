@@ -334,7 +334,7 @@ jQuery(document).ready(function () {
 
 
   // The event that occurs when you click on the "Edit" button
-  jQuery('.edit-event').click(function () {
+  jQuery(document).on('click', '.edit-event', function () {
     const isStateHoliday = isDateStateHoliday(eventToEdit.start.format('YYYY-MM-DD'));
     if (!isStateHoliday) {
       jQuery('input[name="edit-ename"]').val(eventToEdit.title);
